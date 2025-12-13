@@ -652,7 +652,7 @@ function HomeTab({
               </h2>
 
               <p className="text-base text-orange-200/90 font-light max-w-2xl mx-auto leading-relaxed mb-4">
-                Rejoignez <span className="font-semibold text-orange-100">Serveur ARMA III RPG</span>, le serveur ARMA III RPG nouvelle génération.
+                Rejoignez <span className="font-semibold text-orange-100">UnrealLife</span>, le serveur ARMA III RPG nouvelle génération.
               </p>
 
               {/* Stats en temps réel */}
@@ -678,12 +678,12 @@ function HomeTab({
             <div className="flex flex-wrap justify-center gap-2 mb-4">
               <span className="badge badge--success">
                 <CheckCircle className="w-3 h-3" />
-                Ouverture 29/08/2025
+                Ouverture prochainement
               </span>
-              <span className="badge badge--info">
+              {/*<span className="badge badge--info">
                 <Target className="w-3 h-3" />
                 BETA Ouverte
-              </span>
+              </span>*/}
             </div>
 
             {/* Sélecteur de serveur

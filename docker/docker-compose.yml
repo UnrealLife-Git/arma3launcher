@@ -9,9 +9,9 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./data/mods:/usr/share/nginx/html/mods:ro
-      - ./data/ressources:/usr/share/nginx/html/ressources:ro
-      - ./data/news:/usr/share/nginx/html/news:ro
+      - /home/debian/arma3_hc/@A3URL/addons:/usr/share/nginx/html/mods:ro
+      - /home/debian/arma3_hc/@A3URL:/usr/share/nginx/html/ressources:ro
+      - /home/debian/arma3_hc/news:/usr/share/nginx/html/news:ro
       - ./generated:/usr/share/nginx/html/generated:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
     depends_on:
@@ -27,9 +27,9 @@ services:
       dockerfile: Dockerfile
     container_name: arma3-manifest-generator
     volumes:
-      - ./data/mods:/app/mods:ro
-      - ./data/ressources:/app/ressources:ro
-      - ./data/news:/app/news:ro
+      - /home/debian/arma3_hc/@A3URL/addons:/app/mods:ro
+      - /home/debian/arma3_hc/@A3URL:/app/ressources:ro
+      - /home/debian/arma3_hc/news:/app/news:ro
       - ./generated:/app/generated
     env_file:
       - ./manifest-config.env

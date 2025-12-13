@@ -3,7 +3,7 @@
   $schema: "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   appId: "com.arma3.launcher",
   asar: true,
-  productName: "arma 3 Launcher",
+  productName: "A3URL_Launcher",
   directories: {
     output: "release/${version}",
     buildResources: "build"
@@ -68,7 +68,7 @@
   },
   publish: {
     provider: "github",
-    owner: "Joaquine-dev",
+    owner: "UnrealLife-Git",
     repo: "arma3launcher",
     releaseType: "release",
     private: false
