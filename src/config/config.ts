@@ -12,12 +12,13 @@ export const config = {
       port: 2302,
       queryPort: 2303,
       maxSlots: 64,
+      password: "btrteam",
       isDefault: true
     }
   ],
 
   mods: {
-    folderName: "@Arma",
+    folderName: "@A3URL",
     urlMods: "http://188.165.227.197:8080/mods",
     urlRessources: "http://188.165.227.197:8080/ressources",
     manifestUrl: "http://188.165.227.197:8080/mods/manifest.json",
@@ -98,7 +99,7 @@ export const config = {
   performance: {
     chunkSize: 1024 * 1024, // 1MB chunks pour téléchargement
     concurrentDownloads: 3, // 3 téléchargements simultanés
-    quickCheckSampleSize: 5, // Vérifier seulement 5 fichiers au démarrage
+    quickCheckSampleSize: 20, // Vérifier seulement 20 fichiers au démarrage
   },
 
   // 🎨 Personnalisation UI

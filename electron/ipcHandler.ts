@@ -1,8 +1,9 @@
-import { ipcMain, BrowserWindow, dialog, shell } from "electron";
+import { ipcMain, BrowserWindow, dialog, shell, app } from "electron";
 import fs from "fs-extra";
 import Store from "electron-store";
 import Registry from "winreg";
 import path from "node:path";
+import os from "node:os";
 import { config } from "../src/config/config";
 import { spawn } from "child_process";
 
@@ -327,55 +328,129 @@ export function setupIpcHandlers(win: BrowserWindow) {
   ipcMain.handle("launch-game", async () => {
     const arma3Path = store.get("arma3Path") as string | null;
 
-    const defaultParamsx64 = "-skipIntro -noSplash -enableHT -malloc=jemalloc_bi_x64 -hugePages -noPause -noPauseAudio";
-    const defaultParamsx86 = "-skipIntro -noSplash -enableHT -malloc=jemalloc_bi -hugePages -noPause -noPauseAudio";
-
     if (!arma3Path) return;
 
-    const is64bit = process.arch === 'x64';
-    const exeName = is64bit ? "arma3_x64.exe" : "arma3.exe";
-    const defaultParams = is64bit ? defaultParamsx64 : defaultParamsx86;
-    const arma3PathExe = path.join(arma3Path, exeName);
+    const battleEyeExe = path.join(arma3Path, "arma3battleye.exe");
+    const armaExe = path.join(arma3Path, "arma3_x64.exe");
+    const armaCfg = path.join(os.homedir(), 'Documents', 'Arma 3', 'arma3.cfg');
 
-    if (!fs.existsSync(arma3PathExe)) {
-      sendMessage(win, "launch-game-error", undefined, `Impossible de trouver ${exeName}`);
+    if (!fs.existsSync(armaExe)) {
+      sendMessage(win, "launch-game-error", undefined, "Impossible de trouver arma3_x64.exe");
       return;
     }
 
-    spawn(arma3PathExe, [defaultParams]);
-    sendMessage(win, "launch-game-success", "Jeu lancé avec succès");
+    if (!fs.existsSync(battleEyeExe)) {
+      sendMessage(win, "launch-game-error", undefined, "Impossible de trouver arma3battleye.exe");
+      return;
+    }
 
-    setTimeout(() => {
-      win.close();
-    }, 5000);
+    // Arguments BattlEye
+    const args = [
+      '2', '1', '0',
+      '-exe', armaExe,
+      '-malloc=jemalloc_bi_x64',
+      '-enableHT',
+      `-mod=${config.mods.folderName}`,
+      '-world=empty',
+      '-nosplash',
+      '-noPause',
+      '-noPauseAudio',
+      '-skipIntro',
+      '-BEservice'
+    ];
+
+    // Ajouter le fichier de configuration s'il existe
+    if (fs.existsSync(armaCfg)) {
+      args.push(`-cfg=${armaCfg}`);
+    }
+    
+    console.log(`🎮 Lancement d'Arma 3 via BattlEye: ${battleEyeExe}`);
+    console.log(`📦 Paramètres: ${args.join(' ')}`);
+    
+    try {
+      const gameProcess = spawn(battleEyeExe, args, { 
+        cwd: arma3Path,
+        detached: true, 
+        stdio: 'ignore',
+        windowsHide: true
+      });
+      gameProcess.unref();
+      
+      sendMessage(win, "launch-game-success", "Jeu lancé avec succès");
+      
+      setTimeout(() => {
+        win.close();
+      }, 2000);
+    } catch (error) {
+      console.error('Erreur lancement Arma 3:', error);
+      sendMessage(win, "launch-game-error", undefined, error instanceof Error ? error.message : "Erreur de lancement");
+    }
   });
 
   // Connexion directe au serveur (lancement + -connect/-port)
   ipcMain.handle("connect-server", async () => {
     const arma3Path = store.get("arma3Path") as string | null;
 
-    const defaultParamsx64 = "-skipIntro -noSplash -enableHT -malloc=jemalloc_bi_x64 -hugePages -noPause -noPauseAudio";
-    const defaultParamsx86 = "-skipIntro -noSplash -enableHT -malloc=jemalloc_bi -hugePages -noPause -noPauseAudio";
-
     if (!arma3Path) return;
 
-    const is64bit = process.arch === 'x64';
-    const exeName = is64bit ? "arma3_x64.exe" : "arma3.exe";
-    const defaultParams = is64bit ? defaultParamsx64 : defaultParamsx86;
-    const arma3PathExe = path.join(arma3Path, exeName);
+    const battleEyeExe = path.join(arma3Path, "arma3battleye.exe");
+    const armaExe = path.join(arma3Path, "arma3_x64.exe");
+    const armaCfg = path.join(os.homedir(), 'Documents', 'Arma 3', 'arma3.cfg');
 
-    if (!fs.existsSync(arma3PathExe)) {
-      sendMessage(win, "launch-game-error", undefined, `Impossible de trouver ${exeName}`);
+    if (!fs.existsSync(armaExe)) {
+      sendMessage(win, "launch-game-error", undefined, "Impossible de trouver arma3_x64.exe");
       return;
     }
 
-    const connectArgs = `-connect=${config.servers[0].ip} -port=${config.servers[0].port}`;
-    spawn(arma3PathExe, [`${defaultParams} ${connectArgs}`]);
-    sendMessage(win, "launch-game-success", "Jeu lancé — connexion au serveur en cours");
+    if (!fs.existsSync(battleEyeExe)) {
+      sendMessage(win, "launch-game-error", undefined, "Impossible de trouver arma3battleye.exe");
+      return;
+    }
 
-    setTimeout(() => {
-      win.close();
-    }, 5000);
+    // Arguments BattlEye avec connexion serveur
+    const args = [
+      '2', '1', '0',
+      '-exe', armaExe,
+      '-malloc=jemalloc_bi_x64',
+      '-enableHT',
+      `-mod=${config.mods.folderName}`,
+      '-world=empty',
+      '-nosplash',
+      '-noPause',
+      '-noPauseAudio',
+      '-skipIntro',
+      `-connect=${config.servers[0].ip}`,
+      `-port=${config.servers[0].port}`,
+      `-password=${config.servers[0].password}`,
+      '-BEservice'
+    ];
+
+    // Ajouter le fichier de configuration s'il existe
+    if (fs.existsSync(armaCfg)) {
+      args.push(`-cfg=${armaCfg}`);
+    }
+    
+    console.log(`🎮 Connexion au serveur via BattlEye: ${battleEyeExe}`);
+    console.log(`📦 Paramètres: ${args.join(' ')}`);
+    
+    try {
+      const gameProcess = spawn(battleEyeExe, args, { 
+        cwd: arma3Path,
+        detached: true, 
+        stdio: 'ignore',
+        windowsHide: true
+      });
+      gameProcess.unref();
+      
+      sendMessage(win, "launch-game-success", "Jeu lancé — connexion au serveur en cours");
+      
+      setTimeout(() => {
+        win.close();
+      }, 2000);
+    } catch (error) {
+      console.error('Erreur connexion serveur:', error);
+      sendMessage(win, "launch-game-error", undefined, error instanceof Error ? error.message : "Erreur de connexion");
+    }
   });
 
   // Gestionnaire des actualités
