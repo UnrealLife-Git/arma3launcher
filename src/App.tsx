@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Folder, Download, Play, Settings, AlertCircle, CheckCircle, Clock, Target, Radio, Monitor, X, Minimize, Server, ExternalLink } from 'lucide-react'
+import { Folder, Download, Play, Settings, AlertCircle, CheckCircle, Clock, Radio, Monitor, X, Minimize, Server, ExternalLink } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 import { config } from './config/config'
 

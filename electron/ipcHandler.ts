@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow, dialog, shell, app } from "electron";
+import { ipcMain, BrowserWindow, dialog, shell } from "electron";
 import fs from "fs-extra";
 import Store from "electron-store";
 import Registry from "winreg";
