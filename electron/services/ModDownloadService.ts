@@ -84,9 +84,15 @@ export async function downloadFileWithResume(
       if (expectedSha256) {
         const computed = await calculateFileSha256(tempPath);
         if (computed.toLowerCase() !== expectedSha256.toLowerCase()) {
+          const fileName = path.basename(destinationPath);
+          console.error(`❌ SHA256 mismatch pour ${fileName}`);
+          console.error(`   Attendu: ${expectedSha256}`);
+          console.error(`   Reçu:    ${computed}`);
+          console.error(`   Tentative ${attempt + 1}/${maxRetries}`);
+          
           // Mauvais hash, on supprime le fichier partiel et on relance
           await fs.remove(tempPath);
-          throw new Error("SHA256 mismatch");
+          throw new Error(`SHA256 mismatch: ${fileName} (fichier corrompu, tentative ${attempt + 1}/${maxRetries})`);
         }
       }
 
@@ -94,9 +100,24 @@ export async function downloadFileWithResume(
       return;
     } catch (err) {
       attempt += 1;
+      const fileName = path.basename(destinationPath);
+      
       if (attempt >= maxRetries) {
+        console.error(`❌ Échec définitif après ${maxRetries} tentatives pour ${fileName}`);
+        // Nettoyer les fichiers partiels corrompus
+        if (await fs.pathExists(tempPath)) {
+          await fs.remove(tempPath);
+        }
         throw err;
       }
+      
+      // Si le fichier partiel existe et qu'on a une erreur SHA, on le supprime pour repartir de zéro
+      if (err instanceof Error && err.message.includes("SHA256 mismatch") && await fs.pathExists(tempPath)) {
+        console.log(`🔄 Suppression du fichier partiel corrompu pour ${fileName}, nouvelle tentative...`);
+        await fs.remove(tempPath);
+      }
+      
+      console.log(`⏳ Retry ${attempt}/${maxRetries} pour ${fileName} dans ${500 * attempt}ms...`);
       // backoff
       await delay(500 * attempt);
     }

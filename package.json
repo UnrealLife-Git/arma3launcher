@@ -1,11 +1,11 @@
 {
   "name": "arma3_launcher",
   "private": false,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
-  "description": "Launcher pour Arma 3",
+  "description": "Launcher pour UnrealLife",
   "author": "Joaquine",
-  "productName": "Arma 3 Launcher",
+  "productName": "UnrealLife Launcher",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder",

@@ -19,7 +19,7 @@ async function triggerManifestGeneration(force = false) {
     console.log('🔄 Déclenchement de la régénération des manifests...');
 
     const response = await axios.post(`${MANIFEST_GENERATOR_URL}/generate`, { force }, {
-      timeout: 30000,
+      timeout: 300000, // 5 minutes - temps nécessaire pour calculer les hash SHA256 des gros fichiers .pbo
       headers: {
         'Content-Type': 'application/json'
       }

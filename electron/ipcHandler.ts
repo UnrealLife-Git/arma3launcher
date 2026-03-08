@@ -308,11 +308,23 @@ export function setupIpcHandlers(win: BrowserWindow) {
       sendMessage(win, "arma3Path-mod-loaded", "Jeu prêt à être lancé");
     } catch (error) {
       console.error("Erreur lors de la synchronisation des mods:", error);
+      
+      let errorMessage = "Erreur inconnue";
+      if (error instanceof Error) {
+        if (error.message.includes("SHA256 mismatch")) {
+          errorMessage = "Fichier corrompu - Réessayez la synchronisation. Si le problème persiste, contactez l'administrateur.";
+        } else if (error.message.includes("HTTP")) {
+          errorMessage = "Erreur réseau - Vérifiez votre connexion et réessayez";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       sendMessage(
         win,
         "download-error",
         undefined,
-        error instanceof Error ? error.message : "Erreur inconnue"
+        errorMessage
       );
     }
   });
