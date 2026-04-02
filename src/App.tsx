@@ -838,7 +838,7 @@ function NewsTab({
 
               <p className="text-sm text-gray-300 mb-4 leading-relaxed">{item.content}</p>
 
-              {item.tags.length > 0 && (
+              {item.tags && item.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {item.tags.map((tag: string, tagI: number) => (
                     <span key={tagI} className="text-xs px-2 py-1 bg-gray-700/50 text-gray-300 rounded hover:bg-gray-700/70 transition-colors">

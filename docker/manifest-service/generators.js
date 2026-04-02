@@ -161,19 +161,37 @@ export async function generateNewsIndex(newsDir) {
 
         try {
           const newsData = await fs.readJson(filePath);
+          const stats = await fs.stat(filePath);
 
-          // Ajouter des métadonnées si elles n'existent pas
-          if (!newsData.id) {
-            newsData.id = path.parse(entry.name).name;
-          }
-          if (!newsData.timestamp) {
-            const stats = await fs.stat(filePath);
-            newsData.timestamp = stats.mtime.getTime();
+          // Si c'est un array, traiter chaque élément
+          const items = Array.isArray(newsData) ? newsData : [newsData];
+
+          for (const item of items) {
+            // Normaliser le format
+            const normalizedItem = {
+              ...item,
+              // Convertir timestamp → publishedAt
+              publishedAt: item.publishedAt || item.timestamp || stats.mtime.getTime(),
+              // Ajouter type basé sur priority si absent
+              type: item.type || (item.priority === 'warning' ? 'warning' : 
+                                  item.priority === 'highlight' ? 'event' : 'info'),
+              // Normaliser priority (info/warning/highlight → low/medium/high)
+              priority: item.priority === 'critical' ? 'critical' :
+                       item.priority === 'warning' || item.priority === 'highlight' ? 'high' : 
+                       'medium',
+              // Assurer les champs requis
+              tags: item.tags || [],
+              id: item.id || `${path.parse(entry.name).name}-${processed}`
+            };
+
+            // Supprimer l'ancien champ timestamp si présent
+            delete normalizedItem.timestamp;
+
+            news.push(normalizedItem);
+            processed++;
           }
 
-          news.push(newsData);
-          processed++;
-          console.log(`✅ ${processed} - ${entry.name}`);
+          console.log(`✅ ${items.length} actualité(s) depuis ${entry.name}`);
 
         } catch (parseError) {
           console.warn(`⚠️ Impossible de parser ${entry.name}:`, parseError.message);
@@ -181,8 +199,8 @@ export async function generateNewsIndex(newsDir) {
       }
     }
 
-    // Trier par timestamp décroissant
-    news.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+    // Trier par publishedAt décroissant (plus récent en premier)
+    news.sort((a, b) => (b.publishedAt || 0) - (a.publishedAt || 0));
 
     console.log(`🎉 Index des actualités généré: ${processed} articles`);
     return news;

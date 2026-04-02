@@ -68,7 +68,10 @@ export class NewsService {
       // Normaliser les items (timestamp -> publishedAt si nécessaire)
       const normalizedItems = items.map((item: any) => ({
         ...item,
-        publishedAt: item.publishedAt || item.timestamp || Date.now()
+        publishedAt: item.publishedAt || item.timestamp || Date.now(),
+        tags: item.tags || [],
+        type: item.type || 'info',
+        priority: item.priority || 'medium'
       }));
 
       // Filtrer les actualités expirées

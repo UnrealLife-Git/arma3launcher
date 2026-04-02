@@ -1,8 +1,10 @@
+import packageJson from '../../package.json';
+
 export const config = {
   // 🎮 Informations du launcher et serveur
   launcher: {
     name: "Unreallife launcher",
-    version: "1.0.0",
+    version: packageJson.version,
   },
   servers: [
     {
