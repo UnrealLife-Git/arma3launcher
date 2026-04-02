@@ -32,11 +32,25 @@ export class ManifestService {
    */
   async fetchServerManifest(): Promise<ServerManifest | null> {
     try {
-      const response = await fetch(this.manifestUrl);
-      if (!response.ok) return null;
-      return await response.json();
+      console.log(`🔍 Récupération manifest depuis: ${this.manifestUrl}`);
+      const response = await fetch(this.manifestUrl, { 
+        signal: AbortSignal.timeout(30000) // 30 secondes timeout
+      });
+      
+      if (!response.ok) {
+        console.error(`❌ Erreur HTTP ${response.status}: ${response.statusText} pour ${this.manifestUrl}`);
+        return null;
+      }
+      
+      const manifest = await response.json();
+      console.log(`✅ Manifest récupéré: ${manifest.files?.length || 0} fichiers`);
+      return manifest;
     } catch (error) {
-      console.error("Erreur fetch manifest:", error);
+      if (error instanceof Error) {
+        console.error(`❌ Erreur fetch manifest (${this.manifestUrl}):`, error.message);
+      } else {
+        console.error("❌ Erreur fetch manifest:", error);
+      }
       return null;
     }
   }
@@ -76,7 +90,10 @@ export class ManifestService {
     const localManifest = await this.getLocalManifest();
 
     if (!serverManifest) {
-      throw new Error("Impossible de récupérer le manifest serveur");
+      throw new Error(
+        `Impossible de récupérer le manifest serveur depuis ${this.manifestUrl}. ` +
+        `Vérifiez votre connexion Internet et que le serveur est accessible.`
+      );
     }
 
     const toDownload: ModFile[] = [];
@@ -215,7 +232,7 @@ export class ManifestService {
   private async calculateFileHash(filePath: string): Promise<string> {
     return new Promise((resolve, reject) => {
       const hash = crypto.createHash('sha256');
-      const stream = fs.createReadStream(filePath, { highWaterMark: 64 * 1024 }); // 64KB chunks
+      const stream = fs.createReadStream(filePath, { highWaterMark: 1024 * 1024 }); // 1MB chunks pour meilleure perf
       stream.on('data', data => hash.update(data));
       stream.on('end', () => resolve(hash.digest('hex')));
       stream.on('error', reject);

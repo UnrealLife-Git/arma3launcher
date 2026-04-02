@@ -31,7 +31,27 @@ export async function downloadFileWithResume(
 
   await fs.ensureDir(path.dirname(destinationPath));
 
+  // Vérifier si le fichier existe déjà avec le bon hash
+  if (expectedSha256 && await fs.pathExists(destinationPath)) {
+    try {
+      const existingHash = await calculateFileSha256(destinationPath);
+      if (existingHash.toLowerCase() === expectedSha256.toLowerCase()) {
+        const fileName = path.basename(destinationPath);
+        console.log(`✅ ${fileName} déjà à jour, téléchargement ignoré`);
+        // Nettoyer le fichier .partial orphelin si il existe
+        if (await fs.pathExists(tempPath)) {
+          await fs.remove(tempPath);
+        }
+        return;
+      }
+    } catch {
+      // Erreur de lecture du hash, on continue le téléchargement
+    }
+  }
+
   let attempt = 0;
+  let forceFullDownload = false; // Flag pour forcer un téléchargement complet
+  
   // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
@@ -40,11 +60,45 @@ export async function downloadFileWithResume(
         : 0;
 
       const headers: Record<string, string> = {};
-      if (existingSize > 0) {
+      // Ne tenter une reprise que si le fichier partiel existe et qu'on ne force pas un téléchargement complet
+      if (existingSize > 0 && !forceFullDownload) {
         headers["Range"] = `bytes=${existingSize}-`;
       }
 
-      const response = await fetch(url, { headers });
+      // Ajouter un timeout de 60 secondes pour la requête initiale
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+      let response: Response;
+      try {
+        response = await fetch(url, { 
+          headers,
+          signal: controller.signal 
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+          throw new Error('Timeout de connexion (60s)');
+        }
+        throw fetchError;
+      }
+      
+      // Gérer l'erreur 416 Range Not Satisfiable
+      if (response.status === 416) {
+        const fileName = path.basename(destinationPath);
+        console.warn(`⚠️ Erreur 416 pour ${fileName} - Le fichier partiel est invalide, redémarrage...`);
+        
+        // Supprimer le fichier partiel corrompu
+        if (await fs.pathExists(tempPath)) {
+          await fs.remove(tempPath);
+        }
+        
+        // Forcer un téléchargement complet au prochain essai
+        forceFullDownload = true;
+        throw new Error(`HTTP 416 - Fichier partiel invalide`);
+      }
+      
       if (!response.ok && response.status !== 206) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -77,6 +131,8 @@ export async function downloadFileWithResume(
           }
         }
       } finally {
+        // Forcer l'écriture des données sur le disque avant de fermer
+        await fs.fsync(fileHandle);
         await fs.close(fileHandle);
       }
 
@@ -111,14 +167,22 @@ export async function downloadFileWithResume(
         throw err;
       }
       
-      // Si le fichier partiel existe et qu'on a une erreur SHA, on le supprime pour repartir de zéro
-      if (err instanceof Error && err.message.includes("SHA256 mismatch") && await fs.pathExists(tempPath)) {
-        console.log(`🔄 Suppression du fichier partiel corrompu pour ${fileName}, nouvelle tentative...`);
+      // Déterminer si on doit supprimer le fichier partiel
+      const shouldRemovePartial = 
+        (err instanceof Error && err.message.includes("SHA256 mismatch")) ||
+        (err instanceof Error && err.message.includes("HTTP 416")) ||
+        (err instanceof Error && err.message.includes("HTTP 404")) ||
+        (err instanceof Error && err.message.includes("HTTP 500"));
+      
+      // Si erreur critique, supprimer le fichier partiel pour repartir de zéro
+      if (shouldRemovePartial && await fs.pathExists(tempPath)) {
+        console.log(`🔄 Suppression du fichier partiel pour ${fileName}, redémarrage complet...`);
         await fs.remove(tempPath);
+        forceFullDownload = true;
       }
       
       console.log(`⏳ Retry ${attempt}/${maxRetries} pour ${fileName} dans ${500 * attempt}ms...`);
-      // backoff
+      // backoff exponentiel
       await delay(500 * attempt);
     }
   }

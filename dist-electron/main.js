@@ -9834,7 +9834,7 @@ const ltr = ltr_1;
 const intersects = intersects_1;
 const simplifyRange = simplify;
 const subset = subset_1;
-var semver$1 = {
+var semver$2 = {
   parse: parse$1,
   valid,
   clean,
@@ -9881,7 +9881,7 @@ var semver$1 = {
   compareIdentifiers: identifiers.compareIdentifiers,
   rcompareIdentifiers: identifiers.rcompareIdentifiers
 };
-const semver$2 = /* @__PURE__ */ getDefaultExportFromCjs(semver$1);
+const semver$1 = /* @__PURE__ */ getDefaultExportFromCjs(semver$2);
 var DownloadedUpdateHelper$1 = {};
 var lodash_isequal = { exports: {} };
 lodash_isequal.exports;
@@ -11103,7 +11103,7 @@ Object.defineProperty(GitHubProvider$1, "__esModule", { value: true });
 GitHubProvider$1.GitHubProvider = GitHubProvider$1.BaseGitHubProvider = void 0;
 GitHubProvider$1.computeReleaseNotes = computeReleaseNotes;
 const builder_util_runtime_1$b = out;
-const semver = semver$1;
+const semver = semver$2;
 const url_1$3 = require$$4$2;
 const util_1$Z = util$3;
 const Provider_1$8 = Provider$1;
@@ -12253,7 +12253,7 @@ const fs_extra_1$4 = lib$2;
 const js_yaml_1 = jsYaml;
 const lazy_val_1 = main;
 const path$h = require$$1$2;
-const semver_1 = semver$1;
+const semver_1 = semver$2;
 const DownloadedUpdateHelper_1 = DownloadedUpdateHelper$1;
 const ElectronAppAdapter_1 = ElectronAppAdapter$1;
 const electronHttpExecutor_1 = electronHttpExecutor;
@@ -15349,7 +15349,7 @@ if (!IS_WINDOWS) {
 if (IS_LINUX) {
   Signals.push("SIGIO", "SIGPOLL", "SIGPWR", "SIGSTKFLT");
 }
-class Interceptor {
+let Interceptor$1 = class Interceptor {
   /* CONSTRUCTOR */
   constructor() {
     this.callbacks = /* @__PURE__ */ new Set();
@@ -15386,9 +15386,9 @@ class Interceptor {
     };
     this.hook();
   }
-}
-const Interceptor$1 = new Interceptor();
-const whenExit = Interceptor$1.register;
+};
+const Interceptor2 = new Interceptor$1();
+const whenExit = Interceptor2.register;
 const Temp = {
   /* VARIABLES */
   store: {},
@@ -28468,7 +28468,7 @@ class Conf {
         throw new Error(`Something went wrong during the migration! Changes applied to the store until this failed migration will be restored. ${error2}`);
       }
     }
-    if (this._isVersionInRangeFormat(previousMigratedVersion) || !semver$2.eq(previousMigratedVersion, versionToMigrate)) {
+    if (this._isVersionInRangeFormat(previousMigratedVersion) || !semver$1.eq(previousMigratedVersion, versionToMigrate)) {
       this._set(MIGRATION_KEY, versionToMigrate);
     }
   }
@@ -28491,19 +28491,19 @@ class Conf {
     return false;
   }
   _isVersionInRangeFormat(version) {
-    return semver$2.clean(version) === null;
+    return semver$1.clean(version) === null;
   }
   _shouldPerformMigration(candidateVersion, previousMigratedVersion, versionToMigrate) {
     if (this._isVersionInRangeFormat(candidateVersion)) {
-      if (previousMigratedVersion !== "0.0.0" && semver$2.satisfies(previousMigratedVersion, candidateVersion)) {
+      if (previousMigratedVersion !== "0.0.0" && semver$1.satisfies(previousMigratedVersion, candidateVersion)) {
         return false;
       }
-      return semver$2.satisfies(versionToMigrate, candidateVersion);
+      return semver$1.satisfies(versionToMigrate, candidateVersion);
     }
-    if (semver$2.lte(candidateVersion, previousMigratedVersion)) {
+    if (semver$1.lte(candidateVersion, previousMigratedVersion)) {
       return false;
     }
-    if (semver$2.gt(candidateVersion, versionToMigrate)) {
+    if (semver$1.gt(candidateVersion, versionToMigrate)) {
       return false;
     }
     return true;
@@ -28657,9 +28657,9 @@ function RegistryItem(host, hive, key, name, type2, value, arch) {
   });
 }
 util.inherits(RegistryItem, Object);
-function Registry(options) {
-  if (!(this instanceof Registry))
-    return new Registry(options);
+function Registry$1(options) {
+  if (!(this instanceof Registry$1))
+    return new Registry$1(options);
   var _options2 = options || {}, _host = "" + (_options2.host || ""), _hive = "" + (_options2.hive || HKLM), _key = "" + (_options2.key || ""), _arch = _options2.arch || null;
   this.__defineGetter__("host", function() {
     return _host;
@@ -28678,7 +28678,7 @@ function Registry(options) {
   });
   this.__defineGetter__("parent", function() {
     var i = _key.lastIndexOf("\\");
-    return new Registry({
+    return new Registry$1({
       host: this.host,
       hive: this.hive,
       key: i == -1 ? "" : _key.substring(0, i),
@@ -28692,22 +28692,22 @@ function Registry(options) {
   if (_arch && _arch != "x64" && _arch != "x86")
     throw new Error("illegal architecture specified (use x86 or x64)");
 }
-Registry.HKLM = HKLM;
-Registry.HKCU = HKCU;
-Registry.HKCR = HKCR;
-Registry.HKU = HKU;
-Registry.HKCC = HKCC;
-Registry.HIVES = HIVES;
-Registry.REG_SZ = REG_SZ;
-Registry.REG_MULTI_SZ = REG_MULTI_SZ;
-Registry.REG_EXPAND_SZ = REG_EXPAND_SZ;
-Registry.REG_DWORD = REG_DWORD;
-Registry.REG_QWORD = REG_QWORD;
-Registry.REG_BINARY = REG_BINARY;
-Registry.REG_NONE = REG_NONE;
-Registry.REG_TYPES = REG_TYPES;
-Registry.DEFAULT_VALUE = DEFAULT_VALUE;
-Registry.prototype.values = function values(cb) {
+Registry$1.HKLM = HKLM;
+Registry$1.HKCU = HKCU;
+Registry$1.HKCR = HKCR;
+Registry$1.HKU = HKU;
+Registry$1.HKCC = HKCC;
+Registry$1.HIVES = HIVES;
+Registry$1.REG_SZ = REG_SZ;
+Registry$1.REG_MULTI_SZ = REG_MULTI_SZ;
+Registry$1.REG_EXPAND_SZ = REG_EXPAND_SZ;
+Registry$1.REG_DWORD = REG_DWORD;
+Registry$1.REG_QWORD = REG_QWORD;
+Registry$1.REG_BINARY = REG_BINARY;
+Registry$1.REG_NONE = REG_NONE;
+Registry$1.REG_TYPES = REG_TYPES;
+Registry$1.DEFAULT_VALUE = DEFAULT_VALUE;
+Registry$1.prototype.values = function values(cb) {
   if (typeof cb !== "function")
     throw new TypeError("must specify a callback");
   var args = ["QUERY", this.path];
@@ -28757,7 +28757,7 @@ Registry.prototype.values = function values(cb) {
   });
   return this;
 };
-Registry.prototype.keys = function keys(cb) {
+Registry$1.prototype.keys = function keys(cb) {
   if (typeof cb !== "function")
     throw new TypeError("must specify a callback");
   var args = ["QUERY", this.path];
@@ -28794,7 +28794,7 @@ Registry.prototype.keys = function keys(cb) {
         match[1];
         key = match[2];
         if (key && key !== self2.key) {
-          result.push(new Registry({
+          result.push(new Registry$1({
             host: self2.host,
             hive: self2.hive,
             key,
@@ -28811,7 +28811,7 @@ Registry.prototype.keys = function keys(cb) {
   });
   return this;
 };
-Registry.prototype.get = function get(name, cb) {
+Registry$1.prototype.get = function get(name, cb) {
   if (typeof cb !== "function")
     throw new TypeError("must specify a callback");
   var args = ["QUERY", this.path];
@@ -28863,7 +28863,7 @@ Registry.prototype.get = function get(name, cb) {
   });
   return this;
 };
-Registry.prototype.set = function set2(name, type2, value, cb) {
+Registry$1.prototype.set = function set2(name, type2, value, cb) {
   if (typeof cb !== "function")
     throw new TypeError("must specify a callback");
   if (REG_TYPES.indexOf(type2) == -1)
@@ -28900,7 +28900,7 @@ Registry.prototype.set = function set2(name, type2, value, cb) {
   });
   return this;
 };
-Registry.prototype.remove = function remove2(name, cb) {
+Registry$1.prototype.remove = function remove2(name, cb) {
   if (typeof cb !== "function")
     throw new TypeError("must specify a callback");
   var args = name ? ["DELETE", this.path, "/f", "/v", name] : ["DELETE", this.path, "/f", "/ve"];
@@ -28930,7 +28930,7 @@ Registry.prototype.remove = function remove2(name, cb) {
   });
   return this;
 };
-Registry.prototype.clear = function clear(cb) {
+Registry$1.prototype.clear = function clear(cb) {
   if (typeof cb !== "function")
     throw new TypeError("must specify a callback");
   var args = ["DELETE", this.path, "/f", "/va"];
@@ -28960,8 +28960,8 @@ Registry.prototype.clear = function clear(cb) {
   });
   return this;
 };
-Registry.prototype.erase = Registry.prototype.clear;
-Registry.prototype.destroy = function destroy(cb) {
+Registry$1.prototype.erase = Registry$1.prototype.clear;
+Registry$1.prototype.destroy = function destroy(cb) {
   if (typeof cb !== "function")
     throw new TypeError("must specify a callback");
   var args = ["DELETE", this.path, "/f"];
@@ -28991,7 +28991,7 @@ Registry.prototype.destroy = function destroy(cb) {
   });
   return this;
 };
-Registry.prototype.create = function create(cb) {
+Registry$1.prototype.create = function create(cb) {
   if (typeof cb !== "function")
     throw new TypeError("must specify a callback");
   var args = ["ADD", this.path, "/f"];
@@ -29021,7 +29021,7 @@ Registry.prototype.create = function create(cb) {
   });
   return this;
 };
-Registry.prototype.keyExists = function keyExists(cb) {
+Registry$1.prototype.keyExists = function keyExists(cb) {
   this.values(function(err, items2) {
     if (err) {
       if (err.code == 1) {
@@ -29033,7 +29033,7 @@ Registry.prototype.keyExists = function keyExists(cb) {
   });
   return this;
 };
-Registry.prototype.valueExists = function valueExists(name, cb) {
+Registry$1.prototype.valueExists = function valueExists(name, cb) {
   this.get(name, function(err, item) {
     if (err) {
       if (err.code == 1) {
@@ -29045,8 +29045,8 @@ Registry.prototype.valueExists = function valueExists(name, cb) {
   });
   return this;
 };
-var registry = Registry;
-const Registry$1 = /* @__PURE__ */ getDefaultExportFromCjs(registry);
+var registry = Registry$1;
+const Registry = /* @__PURE__ */ getDefaultExportFromCjs(registry);
 const config = {
   // 🎮 Informations du launcher et serveur
   launcher: {
@@ -29174,15 +29174,54 @@ async function downloadFileWithResume(url, destinationPath, onProgress, expected
   var _a;
   const tempPath = `${destinationPath}.partial`;
   await fs.ensureDir(path$z.dirname(destinationPath));
+  if (expectedSha256 && await fs.pathExists(destinationPath)) {
+    try {
+      const existingHash = await calculateFileSha256(destinationPath);
+      if (existingHash.toLowerCase() === expectedSha256.toLowerCase()) {
+        const fileName = path$z.basename(destinationPath);
+        console.log(`✅ ${fileName} déjà à jour, téléchargement ignoré`);
+        if (await fs.pathExists(tempPath)) {
+          await fs.remove(tempPath);
+        }
+        return;
+      }
+    } catch {
+    }
+  }
   let attempt = 0;
+  let forceFullDownload = false;
   while (true) {
     try {
       const existingSize = await fs.pathExists(tempPath) ? (await fs.stat(tempPath)).size : 0;
       const headers = {};
-      if (existingSize > 0) {
+      if (existingSize > 0 && !forceFullDownload) {
         headers["Range"] = `bytes=${existingSize}-`;
       }
-      const response = await fetch(url, { headers });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6e4);
+      let response;
+      try {
+        response = await fetch(url, {
+          headers,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError instanceof Error && fetchError.name === "AbortError") {
+          throw new Error("Timeout de connexion (60s)");
+        }
+        throw fetchError;
+      }
+      if (response.status === 416) {
+        const fileName = path$z.basename(destinationPath);
+        console.warn(`⚠️ Erreur 416 pour ${fileName} - Le fichier partiel est invalide, redémarrage...`);
+        if (await fs.pathExists(tempPath)) {
+          await fs.remove(tempPath);
+        }
+        forceFullDownload = true;
+        throw new Error(`HTTP 416 - Fichier partiel invalide`);
+      }
       if (!response.ok && response.status !== 206) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -29211,6 +29250,7 @@ async function downloadFileWithResume(url, destinationPath, onProgress, expected
           }
         }
       } finally {
+        await fs.fsync(fileHandle);
         await fs.close(fileHandle);
       }
       if (expectedSha256) {
@@ -29237,9 +29277,11 @@ async function downloadFileWithResume(url, destinationPath, onProgress, expected
         }
         throw err;
       }
-      if (err instanceof Error && err.message.includes("SHA256 mismatch") && await fs.pathExists(tempPath)) {
-        console.log(`🔄 Suppression du fichier partiel corrompu pour ${fileName}, nouvelle tentative...`);
+      const shouldRemovePartial = err instanceof Error && err.message.includes("SHA256 mismatch") || err instanceof Error && err.message.includes("HTTP 416") || err instanceof Error && err.message.includes("HTTP 404") || err instanceof Error && err.message.includes("HTTP 500");
+      if (shouldRemovePartial && await fs.pathExists(tempPath)) {
+        console.log(`🔄 Suppression du fichier partiel pour ${fileName}, redémarrage complet...`);
         await fs.remove(tempPath);
+        forceFullDownload = true;
       }
       console.log(`⏳ Retry ${attempt}/${maxRetries} pour ${fileName} dans ${500 * attempt}ms...`);
       await setTimeout$1(500 * attempt);
@@ -29257,12 +29299,26 @@ class ManifestService {
    * Télécharge le manifest serveur (très rapide, ~1-5KB)
    */
   async fetchServerManifest() {
+    var _a;
     try {
-      const response = await fetch(this.manifestUrl);
-      if (!response.ok) return null;
-      return await response.json();
+      console.log(`🔍 Récupération manifest depuis: ${this.manifestUrl}`);
+      const response = await fetch(this.manifestUrl, {
+        signal: AbortSignal.timeout(3e4)
+        // 30 secondes timeout
+      });
+      if (!response.ok) {
+        console.error(`❌ Erreur HTTP ${response.status}: ${response.statusText} pour ${this.manifestUrl}`);
+        return null;
+      }
+      const manifest = await response.json();
+      console.log(`✅ Manifest récupéré: ${((_a = manifest.files) == null ? void 0 : _a.length) || 0} fichiers`);
+      return manifest;
     } catch (error2) {
-      console.error("Erreur fetch manifest:", error2);
+      if (error2 instanceof Error) {
+        console.error(`❌ Erreur fetch manifest (${this.manifestUrl}):`, error2.message);
+      } else {
+        console.error("❌ Erreur fetch manifest:", error2);
+      }
       return null;
     }
   }
@@ -29294,7 +29350,9 @@ class ManifestService {
     const serverManifest = await this.fetchServerManifest();
     const localManifest = await this.getLocalManifest();
     if (!serverManifest) {
-      throw new Error("Impossible de récupérer le manifest serveur");
+      throw new Error(
+        `Impossible de récupérer le manifest serveur depuis ${this.manifestUrl}. Vérifiez votre connexion Internet et que le serveur est accessible.`
+      );
     }
     const toDownload = [];
     const toDelete = [];
@@ -29397,7 +29455,7 @@ class ManifestService {
   async calculateFileHash(filePath) {
     return new Promise((resolve2, reject) => {
       const hash = crypto.createHash("sha256");
-      const stream = fs.createReadStream(filePath, { highWaterMark: 64 * 1024 });
+      const stream = fs.createReadStream(filePath, { highWaterMark: 1024 * 1024 });
       stream.on("data", (data) => hash.update(data));
       stream.on("end", () => resolve2(hash.digest("hex")));
       stream.on("error", reject);
@@ -30116,8 +30174,8 @@ let newsService = null;
 let steamQueryService = null;
 async function getArma3PathFromRegistry() {
   return new Promise((resolve2) => {
-    const regKey = new Registry$1({
-      hive: Registry$1.HKLM,
+    const regKey = new Registry({
+      hive: Registry.HKLM,
       key: "\\SOFTWARE\\WOW6432Node\\Bohemia Interactive\\Arma 3"
     });
     regKey.get("main", (err, item) => {
